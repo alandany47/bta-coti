@@ -10,6 +10,7 @@ const SUPPORT_WHATSAPP = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "";
 const LINKS = [
   { href: "/legal/terminos", label: "Términos" },
   { href: "/legal/privacidad", label: "Privacidad" },
+  { href: "/legal/reembolsos", label: "Reembolsos" },
   { href: "/ayuda", label: "Ayuda" },
 ];
 

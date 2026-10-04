@@ -70,6 +70,8 @@ Supabase manda muy pocos correos por hora y desde un remitente genérico. Sin es
    supabase config push
    ```
    (El bloque `[auth.email.smtp]` de `config.toml` está comentado; no hace falta declararlo: la contraseña se puso en el Dashboard.)
+   `config.toml` declara `email_sent = 100` para que el push no devuelva el límite a 2 por hora. **Después del push**, vuelve a
+   Authentication → Rate Limits y confirma que *emails sent* sigue en 100 antes de abrir el registro.
 5. Prueba real: abre `https://ayxco.app/registro`, regístrate con **tu correo real** (uno que no hayas usado), y
    revisa que (a) llega "Confirma tu correo" de AYXCO en menos de un minuto, (b) no cae en spam, (c) el botón te lleva a
    `tu-slug.ayxco.app/panel/bienvenida`, (d) llega después el correo de **bienvenida** (ese sale por la llave `app`).
@@ -92,7 +94,7 @@ Supabase manda muy pocos correos por hora y desde un remitente genérico. Sin es
    | `A` | `@` (apex) | `76.76.21.21` (si Vercel te muestra otro valor, usa el suyo) |
    | `CNAME` | `www` | `cname.vercel-dns-0.com` |
    Deja como están `media` (R2, proxied) y los registros de `send`, `resend._domainkey`, `_dmarc` y de Email Routing:
-   un nombre con registro propio no lo toca el comodín. **Mantén** los dos `NS` de `_acme-challenge` siempre: así Vercel renueva el certificado solo.
+   un nombre con registro propio no lo toca el comodín. **Mantén** los dos `NS` de `_acme-challenge` siempre: así Vercel renueva el certificado solo (es el método que documenta Vercel para DNS externo: *Adding & Configuring a Custom Domain → Use wildcard domains with an external DNS provider*; el certificado actual vence el 30-dic-2026 y debe renovarse ~30 días antes).
 4. Espera. En Vercel → Settings → Domains, `ayxco.app` y `*.ayxco.app` deben quedar con **Valid Configuration**
    y certificado emitido (de minutos a unas horas). Revisa desde tu terminal:
    ```bash

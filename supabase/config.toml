@@ -201,7 +201,9 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+# Con SMTP propio (Resend) se sube a 100; con 2 el tercer registro de la hora falla. Verificar en
+# Dashboard → Authentication → Rate Limits después de cualquier `config push`.
+email_sent = 100
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.

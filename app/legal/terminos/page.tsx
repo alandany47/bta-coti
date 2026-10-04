@@ -50,7 +50,11 @@ export default function TerminosPage() {
               <p className="mt-1">
                 Los planes se cobran por adelantado, mensual o anual, con tarjeta o transferencia SPEI. Puedes
                 cancelar en cualquier momento desde tu panel; el servicio sigue activo hasta el final del
-                periodo ya pagado.
+                periodo ya pagado. Consulta la{" "}
+                <Link href="/legal/reembolsos" className="text-accent underline underline-offset-2">
+                  política de cancelación y reembolsos
+                </Link>
+                .
               </p>
             </section>
             <section id="tus-datos">

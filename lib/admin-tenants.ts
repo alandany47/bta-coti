@@ -73,6 +73,35 @@ export async function getTenantMembers(tenantId: string): Promise<TenantMember[]
   return rows.map((r) => ({ userId: r.user_id, role: r.role, email: emails.get(r.user_id) ?? null }));
 }
 
+export type AdminBillingProfile = {
+  rfc: string;
+  legalName: string;
+  taxRegime: string;
+  postalCode: string;
+  cfdiUse: string;
+  invoiceEmail: string;
+  updatedAt: string;
+};
+
+/** Datos fiscales que capturó el dueño (0037) para emitirle factura; null si todavía no los llenó. */
+export async function getTenantBillingProfile(tenantId: string): Promise<AdminBillingProfile | null> {
+  const { data } = await createServiceRoleClient()
+    .from("tenant_billing_profiles")
+    .select("rfc, legal_name, tax_regime, postal_code, cfdi_use, invoice_email, updated_at")
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    rfc: data.rfc,
+    legalName: data.legal_name,
+    taxRegime: data.tax_regime,
+    postalCode: data.postal_code,
+    cfdiUse: data.cfdi_use,
+    invoiceEmail: data.invoice_email,
+    updatedAt: data.updated_at,
+  };
+}
+
 /** Código del plan (para clonar un tenant de demo con el mismo plan al aprovisionar el prospecto). */
 export async function getTenantPlanCode(tenantId: string): Promise<string | null> {
   const { data } = await createServiceRoleClient()

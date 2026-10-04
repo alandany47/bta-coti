@@ -1,6 +1,7 @@
 import { getPanelContext, hasRole } from "@/lib/auth/panel";
 import { PlanPicker } from "@/components/billing/plan-picker";
 import { PortalButton } from "@/components/billing/portal-button";
+import { BillingProfileForm } from "@/components/billing/billing-profile-form";
 import { getStripe, stripeConfigured } from "@/lib/stripe";
 import { formatCurrency } from "@/lib/utils";
 
@@ -39,7 +40,8 @@ export default async function BillingPage({
   const { checkout } = await searchParams;
   // anyStatus: un tenant suspended/canceled es justo el que necesita esta página para pagar y
   // reactivarse (lib/tenant-page.ts); el layout ya llamó a getPanelContext igual para no duplicar.
-  const { supabase, tenant, role } = await getPanelContext(slug, true);
+  const { supabase, tenant, role, user } = await getPanelContext(slug, true);
+  const userEmail = user.email ?? "";
   const isOwner = hasRole(role, "owner");
 
   if (tenant.is_demo) {
@@ -51,7 +53,7 @@ export default async function BillingPage({
     );
   }
 
-  const [{ data: currentTenant }, { data: plans }, { data: subscription }] = await Promise.all([
+  const [{ data: currentTenant }, { data: plans }, { data: subscription }, { data: profile }] = await Promise.all([
     supabase
       .from("tenants")
       .select("plan_id, stripe_customer_id, stripe_subscription_id, status_reason")
@@ -63,6 +65,8 @@ export default async function BillingPage({
       .select("status, current_period_end, cancel_at_period_end")
       .eq("tenant_id", tenant.id)
       .maybeSingle(),
+    // RLS: solo el dueño lo ve; para cualquier otro rol vuelve vacío.
+    supabase.from("tenant_billing_profiles").select("rfc, legal_name, tax_regime, postal_code, cfdi_use, invoice_email").eq("tenant_id", tenant.id).maybeSingle(),
   ]);
 
   const currentPlan = (plans ?? []).find((p) => p.id === currentTenant?.plan_id) ?? null;
@@ -144,6 +148,25 @@ export default async function BillingPage({
       ) : (
         <p className="text-sm text-ink-3">Solo el dueño del negocio puede cambiar el plan o el método de pago.</p>
       )}
+
+      {isOwner ? (
+        <BillingProfileForm
+          tenantSlug={slug}
+          defaultEmail={userEmail}
+          initial={
+            profile
+              ? {
+                  rfc: profile.rfc,
+                  legalName: profile.legal_name,
+                  taxRegime: profile.tax_regime,
+                  postalCode: profile.postal_code,
+                  cfdiUse: profile.cfdi_use,
+                  invoiceEmail: profile.invoice_email,
+                }
+              : null
+          }
+        />
+      ) : null}
 
       {currentPlan ? (
         <p className="text-xs text-ink-3">
