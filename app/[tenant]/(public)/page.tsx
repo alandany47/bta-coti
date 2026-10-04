@@ -32,7 +32,7 @@ export default async function StorefrontPage({
   const tenant = await requireOperableTenant(slug);
 
   const supabase = createServerSupabaseClient();
-  const [{ data }, { data: catalogData }] = await Promise.all([
+  const [{ data, error: propertiesError }, { data: catalogData, error: catalogError }] = await Promise.all([
     supabase
       .from("items")
       .select(PROPERTY_COLUMNS)
@@ -48,6 +48,10 @@ export default async function StorefrontPage({
       .order("sort", { ascending: true })
       .order("title", { ascending: true }),
   ]);
+  // Un fallo de lectura no puede pintarse como "aún no hay nada publicado": mejor que caiga al error del segmento.
+  if (propertiesError || catalogError) {
+    throw new Error(`vitrina de ${slug} no pudo leer ítems: ${(propertiesError ?? catalogError)?.message}`);
+  }
   const properties = (data ?? []).map(itemToProperty);
 
   const catalogItems: CatalogItem[] = (catalogData ?? []).map((row) => ({
