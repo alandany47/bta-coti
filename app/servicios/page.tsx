@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { tenantOrigin } from "@/lib/auth/redirects";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
@@ -18,6 +20,8 @@ export default async function ServiciosPage() {
     .eq("public", true)
     .maybeSingle();
 
+  const host = (await headers()).get("host") ?? "";
+
   return (
     <>
       <SiteHeader />
@@ -30,11 +34,15 @@ export default async function ServiciosPage() {
         screenshotAlt="Catálogo público de servicios, ejemplo de una plomería"
         planCode="esencial"
         priceMonth={plan ? Number(plan.price_month) : 199}
+        demos={[
+          { label: "Probar el panel de ejemplo", href: "/demo/entrar?plan=esencial" },
+          { label: "Ver la vitrina de ejemplo", href: tenantOrigin("demo-esencial", host) },
+        ]}
         features={[
           "Catálogo de servicios y materiales por categoría",
           "Página pública compartible, sin que tu cliente necesite cuenta",
-          "Cotización multilínea con cantidad, descuento e IVA — en camino",
-          "Envío de cotización por WhatsApp y PDF — en camino",
+          "Cotización con varios conceptos: cantidad, descuento por línea e IVA",
+          "PDF y envío por WhatsApp, con la plantilla que elijas",
         ]}
       />
       <SiteFooter />

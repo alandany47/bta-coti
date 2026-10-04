@@ -54,37 +54,69 @@ export default async function MarketingHome() {
   const esencialFrom = plans?.find((p) => p.code === "esencial")?.price_month;
   const catalogoFrom = plans?.find((p) => p.code === "catalogo")?.price_month;
 
-  // Cada giro enseña un negocio de ejemplo real (docs/DEMO.md §4.1): Broker abre el panel
-  // interactivo; Servicios y Catálogo, que aún no tienen cotizador propio (T30/T32), enseñan su
-  // catálogo público. Los enlaces son del subdominio del tenant, así que se arman con el host.
+  // Cada giro enseña un negocio de ejemplo real (docs/DEMO.md §4.1): el panel interactivo
+  // (`/demo/entrar?plan=…`, sesión compartida, no se guarda nada) y su vitrina pública. Los enlaces
+  // de vitrina son del subdominio del tenant, así que se arman con el host.
   const host = (await headers()).get("host") ?? "";
   const modules = [
+    {
+      name: "Servicios",
+      body: "Cotiza con varios conceptos, cantidades, descuento por línea e IVA.",
+      from: esencialFrom,
+      image: "/marketing/hero-servicios-storefront-v3.jpg",
+      alt: "Catálogo público de servicios del módulo Servicios",
+      panel: "/demo/entrar?plan=esencial",
+      storefront: tenantOrigin("demo-esencial", host),
+    },
+    {
+      name: "Catálogo",
+      body: "Productos con foto y precio, vitrina con búsqueda y cotización por WhatsApp.",
+      from: catalogoFrom,
+      image: "/marketing/hero-catalogo-storefront-v3.jpg",
+      alt: "Catálogo público de productos del módulo Catálogo",
+      panel: "/demo/entrar?plan=catalogo",
+      storefront: tenantOrigin("demo-catalogo", host),
+    },
     {
       name: "Broker",
       body: "Propiedades, enganches y mensualidades, cotización en un clic.",
       from: brokerFrom,
       image: "/marketing/hero-broker-storefront-v2.jpg",
       alt: "Catálogo de propiedades del módulo Broker",
-      href: "/demo/entrar",
-      cta: "Probar el panel de ejemplo",
+      panel: "/demo/entrar?plan=broker",
+      storefront: tenantOrigin("demo-broker", host),
+    },
+  ];
+
+  // Capturas reales del panel de los negocios de ejemplo (docs/DEMO.md §4.1).
+  const inside = [
+    {
+      title: "Cotiza servicios tocando conceptos",
+      body: "Cantidad, descuento por línea e IVA; el total se calcula solo.",
+      image: "/marketing/panel-cotizar-servicios.jpg",
+      alt: "Panel de cotización de servicios de una plomería, con tres conceptos agregados",
+      href: "/demo/entrar?plan=esencial",
     },
     {
-      name: "Servicios",
-      body: "Catálogo de servicios y materiales por categoría.",
-      from: esencialFrom,
-      image: "/marketing/hero-servicios-storefront-v3.jpg",
-      alt: "Catálogo público de servicios del módulo Servicios",
-      href: tenantOrigin("demo-esencial", host),
-      cta: "Ver catálogo de ejemplo",
+      title: "Tu catálogo, con fotos y precios",
+      body: "Da de alta productos y servicios desde el celular. Lo que publiques sale en tu vitrina.",
+      image: "/marketing/panel-catalogo-editor.jpg",
+      alt: "Editor de catálogo de una mueblería con fotos y precios",
+      href: "/demo/entrar?plan=catalogo",
     },
     {
-      name: "Catálogo",
-      body: "Publica tu catálogo de productos, compartible con un link.",
-      from: catalogoFrom,
-      image: "/marketing/hero-catalogo-storefront-v3.jpg",
-      alt: "Catálogo público de productos del módulo Catálogo",
-      href: tenantOrigin("demo-catalogo", host),
-      cta: "Ver catálogo de ejemplo",
+      title: "Una cotización con tu marca",
+      body: "Tres plantillas para la página que recibe tu cliente y para el PDF, con tu logo y color.",
+      image: "/marketing/panel-plantillas.jpg",
+      alt: "Selector de plantillas de cotización con vista previa",
+      href: "/demo/entrar?plan=brokerpro",
+    },
+    {
+      title: "Cartera de propiedades",
+      body: "Estado de cada unidad y cotización con enganche y mensualidades en un paso.",
+      image: "/marketing/panel-cartera-broker.jpg",
+      alt: "Cartera de propiedades de una inmobiliaria en el panel",
+      href: "/demo/entrar?plan=broker",
     },
   ];
 
@@ -148,13 +180,12 @@ export default async function MarketingHome() {
             <h2 className="font-display text-[32px] font-medium leading-[1.15] text-ink">Un módulo por cada giro</h2>
             <div className="mt-8 grid gap-6 sm:grid-cols-3">
               {modules.map((module) => (
-                <a
+                <div
                   key={module.name}
-                  href={module.href}
-                  className="group flex flex-col overflow-hidden rounded-lg border border-line bg-paper transition-colors hover:border-ink-3"
+                  className="flex flex-col overflow-hidden rounded-lg border border-line bg-paper"
                 >
                   {/* El degradado del borde inferior avisa que la captura sigue: sin él la miniatura parecía cortada a media fila. */}
-                  <div className="relative border-b border-line">
+                  <a href={module.storefront} className="relative block border-b border-line" tabIndex={-1} aria-hidden>
                     <Image
                       src={module.image}
                       alt={module.alt}
@@ -167,15 +198,53 @@ export default async function MarketingHome() {
                       aria-hidden
                       className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-paper to-transparent"
                     />
-                  </div>
+                  </a>
                   <div className="flex flex-1 flex-col gap-1 p-5">
                     <h3 className="font-medium text-ink">{module.name}</h3>
                     <p className="text-sm text-ink-2">{module.body}</p>
                     {module.from ? (
                       <p className="mt-2 text-sm text-ink-2">Desde {formatCurrency(module.from)}/mes</p>
                     ) : null}
-                    <span className="mt-auto pt-3 text-sm font-medium text-accent group-hover:underline">
-                      {module.cta} →
+                    <div className="mt-auto flex flex-col gap-1 pt-3 text-sm font-medium text-accent">
+                      <a href={module.panel} className="hover:underline">
+                        Probar el panel de ejemplo →
+                      </a>
+                      <a href={module.storefront} className="hover:underline">
+                        Ver la vitrina de ejemplo →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Por dentro de la app */}
+        <section className="border-t border-line">
+          <div className="mx-auto w-full max-w-[1120px] px-6 py-16">
+            <h2 className="font-display text-[32px] font-medium leading-[1.15] text-ink">Así se ve por dentro</h2>
+            <p className="mt-2 max-w-2xl text-ink-2">
+              Capturas reales de los negocios de ejemplo. Cada una abre ese panel para que lo pruebes tú.
+            </p>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+              {inside.map((shot) => (
+                <a key={shot.title} href={shot.href} className="group flex flex-col gap-3">
+                  <div className="overflow-hidden rounded-lg border border-line shadow-lg transition-colors group-hover:border-ink-3">
+                    <Image
+                      src={shot.image}
+                      alt={shot.alt}
+                      width={1100}
+                      height={825}
+                      sizes="(min-width: 640px) 50vw, 100vw"
+                      className="aspect-[4/3] w-full object-cover object-top"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-ink">{shot.title}</h3>
+                    <p className="mt-1 text-sm text-ink-2">{shot.body}</p>
+                    <span className="mt-1 inline-block text-sm font-medium text-accent group-hover:underline">
+                      Probarlo →
                     </span>
                   </div>
                 </a>
@@ -202,20 +271,30 @@ export default async function MarketingHome() {
 
         {/* Demo en vivo */}
         <section className="border-t border-line bg-ink">
-          <div className="mx-auto flex w-full max-w-[1120px] flex-col items-start gap-4 px-6 py-16 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-6 py-16">
             <div>
               <h2 className="font-display text-[24px] font-medium text-paper">Pruébalo sin registrarte</h2>
-              <p className="mt-2 text-sm text-paper/70">
-                Entra al panel de una inmobiliaria de ejemplo y arma una cotización de prueba, con PDF y
+              <p className="mt-2 max-w-2xl text-sm text-paper/70">
+                Elige un giro y entra al panel de un negocio de ejemplo. Arma una cotización de prueba, con PDF y
                 WhatsApp. No se guarda nada.
               </p>
             </div>
-            <Link
-              href="/demo/entrar"
-              className={cn(buttonVariants({ size: "lg" }), "bg-paper text-ink hover:bg-sunken")}
-            >
-              Ver demo en vivo
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              {[
+                ["Servicios", "esencial"],
+                ["Catálogo", "catalogo"],
+                ["Broker", "broker"],
+                ["Broker Pro", "brokerpro"],
+              ].map(([label, plan]) => (
+                <Link
+                  key={plan}
+                  href={`/demo/entrar?plan=${plan}`}
+                  className={cn(buttonVariants({ size: "lg" }), "bg-paper text-ink hover:bg-sunken")}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 

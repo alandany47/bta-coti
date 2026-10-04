@@ -10,6 +10,8 @@ type Props = {
   title: string;
   description: string;
   features: string[];
+  /** Enlaces a los negocios de ejemplo (panel interactivo y vitrina pública). */
+  demos?: { label: string; href: string }[];
 } & (
   | { status: "available"; screenshotSrc: string; screenshotAlt: string; planCode: string; priceMonth: number }
   | { status: "soon" }
@@ -47,6 +49,16 @@ export function ModuleLanding(props: Props) {
                 <span className="text-sm text-ink-2">Próximamente</span>
               </div>
             )}
+
+            {props.demos?.length ? (
+              <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-line pt-5 text-sm">
+                {props.demos.map((demo) => (
+                  <a key={demo.href} href={demo.href} className="font-medium text-accent hover:underline">
+                    {demo.label} →
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div>

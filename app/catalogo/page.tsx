@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { tenantOrigin } from "@/lib/auth/redirects";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
@@ -18,6 +20,8 @@ export default async function CatalogoPage() {
     .eq("public", true)
     .maybeSingle();
 
+  const host = (await headers()).get("host") ?? "";
+
   return (
     <>
       <SiteHeader />
@@ -30,11 +34,15 @@ export default async function CatalogoPage() {
         screenshotAlt="Catálogo público de productos, ejemplo de una mueblería"
         planCode="catalogo"
         priceMonth={plan ? Number(plan.price_month) : 399}
+        demos={[
+          { label: "Probar el panel de ejemplo", href: "/demo/entrar?plan=catalogo" },
+          { label: "Ver la vitrina de ejemplo", href: tenantOrigin("demo-catalogo", host) },
+        ]}
         features={[
           "Catálogo de productos por categoría, con precio y unidad",
           "Página pública compartible con un link, sin que tu cliente necesite cuenta",
-          "Editor con portada y orden de secciones — en camino",
-          "Cotización y envío por WhatsApp y PDF — en camino",
+          "Editor en tu panel: alta de productos y servicios con fotos, precio y categoría",
+          "Tu cliente arma \"Mi cotización\" y te la manda por WhatsApp; tú cotizas servicios con PDF",
         ]}
       />
       <SiteFooter />

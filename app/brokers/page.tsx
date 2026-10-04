@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { tenantOrigin } from "@/lib/auth/redirects";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
@@ -18,6 +20,8 @@ export default async function BrokersPage() {
     .eq("public", true)
     .maybeSingle();
 
+  const host = (await headers()).get("host") ?? "";
+
   return (
     <>
       <SiteHeader />
@@ -30,6 +34,11 @@ export default async function BrokersPage() {
         screenshotAlt="Catálogo de propiedades del módulo Broker"
         planCode="broker"
         priceMonth={plan ? Number(plan.price_month) : 699}
+        demos={[
+          { label: "Probar el panel de ejemplo", href: "/demo/entrar?plan=broker" },
+          { label: "Ver la vitrina de ejemplo", href: tenantOrigin("demo-broker", host) },
+          { label: "Ver Broker Pro (cartera grande)", href: "/demo/entrar?plan=brokerpro" },
+        ]}
         features={[
           "Catálogo de propiedades con fotos, plano y estado (disponible, reservada, vendida)",
           "Calculadora de enganche, mensualidades y saldo a escrituración",
