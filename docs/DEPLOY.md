@@ -4,6 +4,9 @@
 
 Lo que ya está en el repo: `vercel.json` (cron semanal de correos desechables, cron diario de T17 y reset nocturno de la demo) y las variables de `.env.example`. Lo demás son pasos en tus cuentas, en este orden.
 
+> **Estado real (2026-10-04):** hoy existe UN solo proyecto Supabase (`Cotizador-bta`) y es dev y producción a la vez; tiene 0001 → 0036. El plan de abajo (proyecto aparte) sigue pendiente antes de vender: mientras tanto, cualquier prueba o `config push` afecta la base real.
+> **Vercel:** `vercel.json` trae `ignoreCommand`, así que solo se construye `Production`; las ramas y PRs no generan previews (ahorra *Build CPU minutes*). Producción se despliega a mano desde el Dashboard (Redeploy del commit que se quiera publicar). Si hace falta una preview, quitar `ignoreCommand` o usar Redeploy desde el Dashboard.
+
 ## 1. Supabase de producción (aparte del de desarrollo)
 1. Crear el proyecto Pro `cotizador-prod` (el actual es de desarrollo y cambia libremente).
 2. `supabase link --project-ref <ref-prod>` y `supabase db push` (aplica 0001 → 0009; si el historial no coincide, `supabase migration repair`).
@@ -97,7 +100,7 @@ Diferencias a tener en cuenta mientras estés en Hobby:
 ## 4. Verificación (criterios de T10)
 - `https://cualquier.ayxco.app` responde con SSL (un slug inexistente muestra 404 de la app, no error de certificado).
 - `https://ayxco.app/login` inicia sesión y `https://<slug>.ayxco.app/panel` conserva la sesión (cookie `.ayxco.app`).
-- Un preview usa el Supabase de desarrollo: `NEXT_PUBLIC_SUPABASE_URL` distinto al de producción en Settings → Environment Variables.
+- Un preview (si se activa) usaría el Supabase de desarrollo: `NEXT_PUBLIC_SUPABASE_URL` distinto al de producción en Settings → Environment Variables.
 - El cron aparece en Vercel → Settings → Cron Jobs y responde 200 al ejecutarlo a mano.
 
 ## 5. Ligar un dueño a un tenant existente (pilotos previos a 0004)

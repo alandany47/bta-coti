@@ -20,7 +20,7 @@ delicado: Vercel necesita poder demostrar que el dominio es tuyo por DNS, y como
 ## 0.1 Antes de empezar: una advertencia sobre `supabase config push`
 `supabase config push` empuja **todo** `supabase/config.toml` al proyecto de Supabase enlazado y, sin terminal
 interactiva (o con `--yes`), **no pregunta**: aplica. Hoy lo corrí así por error (creí que `echo n` lo cancelaba) y
-durante unos minutos el proyecto de desarrollo tuvo `site_url` de localhost, confirmación de correo apagada y MFA
+durante unos minutos el proyecto (hoy el único: es dev y producción a la vez) tuvo `site_url` de localhost, confirmación de correo apagada y MFA
 apagado. Ya está corregido: `config.toml` ahora refleja lo que hay en el Dashboard (`site_url = https://ayxco.app`,
 redirecciones de `ayxco.app`, confirmación obligatoria, OTP de 8 dígitos, MFA TOTP) y las plantillas de correo en
 español ya están aplicadas en desarrollo. Regla desde ahora: **primero `supabase config diff` (solo lee), revisa, y
