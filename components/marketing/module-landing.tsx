@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn, formatCurrency } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { whatsappDigits } from "@/lib/whatsapp";
 
 const SUPPORT_WHATSAPP = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "";
 
@@ -10,13 +11,15 @@ type Props = {
   title: string;
   description: string;
   features: string[];
+  /** Enlaces a los negocios de ejemplo (panel interactivo y vitrina pública). */
+  demos?: { label: string; href: string }[];
 } & (
   | { status: "available"; screenshotSrc: string; screenshotAlt: string; planCode: string; priceMonth: number }
   | { status: "soon" }
 );
 
 export function ModuleLanding(props: Props) {
-  const supportDigits = SUPPORT_WHATSAPP.replace(/[^\d]/g, "");
+  const supportDigits = SUPPORT_WHATSAPP.replace(/\D/g, "") ? whatsappDigits(SUPPORT_WHATSAPP) : "";
   const waitlistHref = supportDigits
     ? `https://wa.me/${supportDigits}?text=${encodeURIComponent(`Hola, quiero que me avisen cuando el módulo ${props.title} esté disponible.`)}`
     : "/registro";
@@ -47,6 +50,16 @@ export function ModuleLanding(props: Props) {
                 <span className="text-sm text-ink-2">Próximamente</span>
               </div>
             )}
+
+            {props.demos?.length ? (
+              <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-line pt-5 text-sm">
+                {props.demos.map((demo) => (
+                  <a key={demo.href} href={demo.href} className="font-medium text-accent hover:underline">
+                    {demo.label} →
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div>
