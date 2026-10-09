@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { ModuleLanding } from "@/components/marketing/module-landing";
 
 export const metadata: Metadata = {
-  title: "Catálogo",
+  title: "Catálogo y cotizaciones para venta de productos",
   description: "Publica tu catálogo de productos, compartible con un link.",
 };
 
@@ -26,7 +26,7 @@ export default async function CatalogoPage() {
     <>
       <SiteHeader />
       <ModuleLanding
-        eyebrow="Módulo Catálogo"
+        eyebrow="Para productos: muebles, ropa, maquillaje"
         title="Publica tu catálogo de productos"
         description="Tus productos organizados por categoría en una página pública compartible con un link. Para tiendas y mayoristas."
         status="available"

@@ -10,12 +10,16 @@ import { SiteHeader } from "@/components/marketing/site-header";
 import { SiteFooter } from "@/components/marketing/site-footer";
 
 const STEPS = [
-  { n: "1", title: "Sube tu catálogo", body: "Importa tus propiedades desde Excel o agrégalas una por una, con fotos." },
-  { n: "2", title: "Arma la cotización", body: "Elige la unidad, ajusta enganche y mensualidades. El cálculo es automático." },
+  { n: "1", title: "Agrega lo que vendes", body: "Productos, servicios o propiedades, con foto y precio. También puedes importarlos desde Excel." },
+  { n: "2", title: "Arma la cotización", body: "Toca los conceptos o elige la unidad. Cantidades, descuento, IVA o enganche: el cálculo es automático." },
   { n: "3", title: "Mándala por WhatsApp", body: "Un link con el PDF listo. Tu cliente la ve en el navegador, sin descargar nada." },
 ];
 
 const FAQ = [
+  {
+    q: "¿Para qué tipo de negocio sirve?",
+    a: "Para negocios de servicios (plomería, talleres, contratistas), de productos (muebles, ropa, maquillaje, papelería) y de propiedades (inmobiliarias y brokers). Cada giro tiene su módulo.",
+  },
   {
     q: "¿Cuánto dura la prueba gratis?",
     a: "7 días, con todas las funciones de tu plan. No pedimos tarjeta para empezar.",
@@ -61,7 +65,9 @@ export default async function MarketingHome() {
   const modules = [
     {
       name: "Servicios",
+      plan: "Esencial",
       body: "Cotiza con varios conceptos, cantidades, descuento por línea e IVA.",
+      examples: "Plomería, talleres, contratistas, limpieza, técnicos.",
       from: esencialFrom,
       image: "/marketing/hero-servicios-storefront-v3.jpg",
       alt: "Catálogo público de servicios del módulo Servicios",
@@ -69,8 +75,10 @@ export default async function MarketingHome() {
       storefront: tenantOrigin("demo-esencial", host),
     },
     {
-      name: "Catálogo",
+      name: "Productos",
+      plan: "Catálogo",
       body: "Productos con foto y precio, vitrina con búsqueda y cotización por WhatsApp.",
+      examples: "Venta de muebles, ropa, maquillaje, joyería, papelería.",
       from: catalogoFrom,
       image: "/marketing/hero-catalogo-storefront-v3.jpg",
       alt: "Catálogo público de productos del módulo Catálogo",
@@ -78,8 +86,10 @@ export default async function MarketingHome() {
       storefront: tenantOrigin("demo-catalogo", host),
     },
     {
-      name: "Broker",
+      name: "Propiedades",
+      plan: "Broker",
       body: "Propiedades, enganches y mensualidades, cotización en un clic.",
+      examples: "Inmobiliarias, desarrolladores, brokers, preventa y renta.",
       from: brokerFrom,
       image: "/marketing/hero-broker-storefront-v2.jpg",
       alt: "Catálogo de propiedades del módulo Broker",
@@ -93,7 +103,7 @@ export default async function MarketingHome() {
     {
       title: "Cotiza servicios tocando conceptos",
       body: "Cantidad, descuento por línea e IVA; el total se calcula solo.",
-      image: "/marketing/panel-cotizar-servicios.jpg",
+      image: "/marketing/panel-cotizar-servicios-v2.jpg",
       alt: "Panel de cotización de servicios de una plomería, con tres conceptos agregados",
       href: "/demo/entrar?plan=esencial",
     },
@@ -120,19 +130,35 @@ export default async function MarketingHome() {
     },
   ];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: BRAND.name,
+    url: `https://${BRAND.domain}`,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    inLanguage: "es-MX",
+    description:
+      "Sistema para hacer cotizaciones en segundos y de manera sencilla, para negocios de servicios, productos y propiedades.",
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       <main className="flex-1">
         {/* Hero */}
         <section className="mx-auto w-full max-w-[1120px] px-6 pt-16 pb-20 sm:pt-24">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium tracking-wide text-accent">{BRAND.name}</p>
+            <p className="text-xs font-medium uppercase tracking-[0.1em] text-accent sm:text-sm sm:tracking-[0.12em]">
+              Cotizaciones · Servicios · Productos · Propiedades
+            </p>
             <h1 className="mt-3 font-display text-[44px] font-medium leading-[1.15] tracking-[-0.01em] text-ink sm:text-[60px]">
               Cotizaciones que cierran ventas.
             </h1>
             <p className="mt-4 text-lg text-ink-2">
-              Listas en 60 segundos, con el cálculo correcto cada vez. Sin hojas de cálculo, sin errores de dedo.
+              Listas en 60 segundos, con el cálculo correcto cada vez. Para negocios de servicios, de productos y de
+              propiedades. Sin hojas de cálculo, sin errores de dedo.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link href="/registro" className={buttonVariants({ size: "lg" })}>
@@ -144,33 +170,63 @@ export default async function MarketingHome() {
             </div>
           </div>
 
-          <div className="mt-14 flex items-end justify-center gap-4">
-            <div className="hidden w-[45%] max-w-[420px] overflow-hidden rounded-xl border border-line shadow-lg sm:block">
-              <Image
-                src="/marketing/hero-cotizacion-desktop-v2.jpg"
-                alt={`Cotización real de ${BRAND.name}, vista de escritorio`}
-                width={860}
-                height={836}
-                sizes="(min-width: 640px) 45vw, 420px"
-                className="w-full"
-                priority
-              />
-            </div>
-            <div className="relative w-[72%] max-w-[260px] overflow-hidden rounded-xl border border-line shadow-lg sm:w-[22%]">
-              <Image
-                src="/marketing/hero-cotizacion-mobile-v2.jpg"
-                alt={`Cotización real de ${BRAND.name}, vista de celular`}
-                width={292}
-                height={634}
-                sizes="(min-width: 640px) 22vw, 260px"
-                className="w-full"
-                priority
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-paper to-transparent"
-              />
-            </div>
+          {/* Una sola imagen que resume lo que hacemos: las tres cotizaciones lado a lado. */}
+          <div className="mt-14 flex items-end justify-center gap-3 sm:gap-5">
+            <figure className="hidden w-[32%] sm:block">
+              <div className="overflow-hidden rounded-xl border border-line shadow-lg">
+                <Image
+                  src="/marketing/panel-cotizar-servicios-v2.jpg"
+                  alt={`Cotización de servicios de una plomería hecha en ${BRAND.name}`}
+                  width={1100}
+                  height={825}
+                  sizes="(min-width: 640px) 32vw, 0px"
+                  className="aspect-[4/3] w-full object-cover object-top"
+                  priority
+                />
+              </div>
+              <figcaption className="mt-3 text-center text-sm font-medium text-ink">Servicios</figcaption>
+            </figure>
+            <figure className="w-[62%] sm:w-[36%]">
+              <div className="overflow-hidden rounded-xl border border-line shadow-lg sm:-translate-y-6">
+                <Image
+                  src="/marketing/hero-catalogo-storefront-v3.jpg"
+                  alt={`Catálogo de productos de una mueblería con cotización, hecho en ${BRAND.name}`}
+                  width={1800}
+                  height={1350}
+                  sizes="(min-width: 640px) 36vw, 62vw"
+                  className="aspect-[4/3] w-full object-cover object-top"
+                  priority
+                />
+              </div>
+              <figcaption className="mt-3 text-center text-sm font-medium text-ink sm:-translate-y-6">Productos</figcaption>
+            </figure>
+            <figure className="relative w-[34%] max-w-[190px] sm:w-[18%]">
+              <div className="overflow-hidden rounded-xl border border-line shadow-lg">
+                <Image
+                  src="/marketing/hero-cotizacion-mobile-v2.jpg"
+                  alt={`Cotización de una propiedad en celular, hecha en ${BRAND.name}`}
+                  width={292}
+                  height={634}
+                  sizes="(min-width: 640px) 18vw, 34vw"
+                  className="w-full"
+                  priority
+                />
+              </div>
+              <figcaption className="mt-3 text-center text-sm font-medium text-ink">Propiedades</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        {/* Qué es */}
+        <section className="border-t border-line bg-surface">
+          <div className="mx-auto w-full max-w-[1120px] px-6 py-14 sm:py-20">
+            <h2 className="max-w-3xl font-display text-[30px] font-medium leading-[1.2] tracking-[-0.01em] text-ink sm:text-[40px]">
+              Un sistema que te permite hacer cotizaciones en segundos, de manera sencilla.
+            </h2>
+            <p className="mt-4 max-w-2xl text-lg text-ink-2">
+              Agregas lo que vendes, tocas lo que tu cliente pidió y le mandas un link con el PDF listo. {BRAND.name} hace
+              las cuentas, guarda el historial y te muestra cuántas veces la abrieron.
+            </p>
           </div>
         </section>
 
@@ -178,6 +234,10 @@ export default async function MarketingHome() {
         <section className="border-t border-line bg-surface">
           <div className="mx-auto w-full max-w-[1120px] px-6 py-16">
             <h2 className="font-display text-[32px] font-medium leading-[1.15] text-ink">Un módulo por cada giro</h2>
+            <p className="mt-2 max-w-2xl text-ink-2">
+              Si vendes muebles, ropa o maquillaje, ofreces servicios de plomería o manejas propiedades, eliges el
+              módulo de lo que vendes y cotizas igual de rápido.
+            </p>
             <div className="mt-8 grid gap-6 sm:grid-cols-3">
               {modules.map((module) => (
                 <div
@@ -202,8 +262,11 @@ export default async function MarketingHome() {
                   <div className="flex flex-1 flex-col gap-1 p-5">
                     <h3 className="font-medium text-ink">{module.name}</h3>
                     <p className="text-sm text-ink-2">{module.body}</p>
+                    <p className="mt-1 text-sm text-ink-3">Ideal para: {module.examples}</p>
                     {module.from ? (
-                      <p className="mt-2 text-sm text-ink-2">Desde {formatCurrency(module.from)}/mes</p>
+                      <p className="mt-2 text-sm text-ink-2">
+                        Plan {module.plan} · desde {formatCurrency(module.from)}/mes
+                      </p>
                     ) : null}
                     <div className="mt-auto flex flex-col gap-1 pt-3 text-sm font-medium text-accent">
                       <a href={module.panel} className="hover:underline">

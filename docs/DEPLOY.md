@@ -52,7 +52,7 @@ Diferencias a tener en cuenta mientras estés en Hobby:
 | `CRON_SECRET` | valor aleatorio largo | otro valor |
 | `DEMO_PASSWORD` | la misma que uses en `DEMO_PASSWORD=... npm run seed:demo` | otro valor de prueba |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | widget prod | clave de prueba de Cloudflare |
-| `NEXT_PUBLIC_SUPPORT_WHATSAPP` | número de soporte | — |
+| `NEXT_PUBLIC_SUPPORT_WHATSAPP` | número de soporte (botón flotante de dudas del sitio de ventas; Redeploy tras cambiarlo) | — |
 | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` | del proyecto en Sentry | mismo o vacío |
 | `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN` | solo para que el build suba source maps | — |
 | `HEALTH_CHECK_TOKEN` | valor aleatorio largo | otro valor |

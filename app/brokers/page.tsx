@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { ModuleLanding } from "@/components/marketing/module-landing";
 
 export const metadata: Metadata = {
-  title: "Broker",
+  title: "Cotizaciones de propiedades para inmobiliarias",
   description: "Cotiza propiedades con enganche y mensualidades calculadas al instante.",
 };
 
@@ -26,7 +26,7 @@ export default async function BrokersPage() {
     <>
       <SiteHeader />
       <ModuleLanding
-        eyebrow="Módulo Broker"
+        eyebrow="Para propiedades: inmobiliarias y brokers"
         title="Cotiza propiedades en 60 segundos"
         description="Sube tu cartera con fotos y plano, arma la cotización con enganche y mensualidades, y mándala por WhatsApp con el PDF listo."
         status="available"

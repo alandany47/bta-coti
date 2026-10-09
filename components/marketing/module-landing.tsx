@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn, formatCurrency } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { whatsappDigits } from "@/lib/whatsapp";
 
 const SUPPORT_WHATSAPP = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "";
 
@@ -18,7 +19,7 @@ type Props = {
 );
 
 export function ModuleLanding(props: Props) {
-  const supportDigits = SUPPORT_WHATSAPP.replace(/[^\d]/g, "");
+  const supportDigits = SUPPORT_WHATSAPP.replace(/\D/g, "") ? whatsappDigits(SUPPORT_WHATSAPP) : "";
   const waitlistHref = supportDigits
     ? `https://wa.me/${supportDigits}?text=${encodeURIComponent(`Hola, quiero que me avisen cuando el módulo ${props.title} esté disponible.`)}`
     : "/registro";

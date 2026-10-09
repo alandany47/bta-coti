@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { ModuleLanding } from "@/components/marketing/module-landing";
 
 export const metadata: Metadata = {
-  title: "Servicios",
+  title: "Cotizaciones para negocios de servicios",
   description: "Cotiza servicios y materiales con desglose por línea.",
 };
 
@@ -26,7 +26,7 @@ export default async function ServiciosPage() {
     <>
       <SiteHeader />
       <ModuleLanding
-        eyebrow="Módulo Servicios"
+        eyebrow="Para servicios: plomería, talleres, contratistas"
         title="Publica tu catálogo de servicios"
         description="Organiza tus servicios y materiales por categoría en una página pública compartible. Para talleres, contratistas y negocios de servicio."
         status="available"
