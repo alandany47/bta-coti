@@ -74,7 +74,15 @@ export default function ReembolsosPage() {
                     </a>
                   </>
                 ) : (
-                  " por el canal de soporte de tu panel"
+                  <>
+                    {" "}a{" "}
+                    <a
+                      href={`mailto:hola@${BRAND.domain}`}
+                      className="text-accent underline underline-offset-2"
+                    >
+                      {`hola@${BRAND.domain}`}
+                    </a>
+                  </>
                 )}{" "}
                 con el nombre de tu negocio y la fecha del cobro. Respondemos en 2 días hábiles.
               </p>
