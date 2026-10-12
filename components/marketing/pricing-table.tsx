@@ -37,20 +37,19 @@ function limitLabel(value: number | null | undefined, unit: string) {
 }
 
 // Qué hace cada plan hoy (no solo cuotas) — basado en lo que de verdad está construido
-// por módulo: el cotizador con WhatsApp/PDF/mini-CRM solo existe para "broker" (T14/T15);
-// servicios y catálogo hoy solo tienen el catálogo público de lectura, su cotización
-// está "en camino" (ver app/servicios, app/catalogo). No prometer aquí lo que esas
-// páginas no prometen.
+// por módulo (T14–T33). No prometer aquí lo que app/servicios, app/catalogo y app/brokers no prometen.
 const PLAN_FEATURES: Record<string, string[]> = {
   esencial: [
     "Catálogo de servicios y materiales por categoría",
     "Página pública compartible con un link",
-    "Cotización multilínea — en camino",
+    "Cotiza con cantidades, descuento por línea e IVA",
+    "PDF y envío por WhatsApp",
   ],
   catalogo: [
     "Catálogo de productos y de servicios por categoría",
     "Página pública compartible con un link",
-    "Cotización y envío por WhatsApp — en camino",
+    "Alta de productos y servicios con fotos",
+    "Cotiza servicios con PDF y WhatsApp",
   ],
   broker: [
     "Cotiza propiedades con enganche y mensualidades",

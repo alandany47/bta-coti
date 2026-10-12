@@ -615,6 +615,50 @@ export type Database = {
           },
         ]
       }
+      tenant_billing_profiles: {
+        Row: {
+          cfdi_use: string
+          invoice_email: string
+          legal_name: string
+          postal_code: string
+          rfc: string
+          tax_regime: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          cfdi_use?: string
+          invoice_email: string
+          legal_name: string
+          postal_code: string
+          rfc: string
+          tax_regime: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          cfdi_use?: string
+          invoice_email?: string
+          legal_name?: string
+          postal_code?: string
+          rfc?: string
+          tax_regime?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_billing_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_invitations: {
         Row: {
           accepted_at: string | null
@@ -1020,6 +1064,18 @@ export type Database = {
       retry_detached_media_deletes: { Args: never; Returns: number }
       revoke_invitation: {
         Args: { p_invitation: string; p_tenant: string }
+        Returns: undefined
+      }
+      set_billing_profile: {
+        Args: {
+          p_cfdi_use: string
+          p_invoice_email: string
+          p_legal_name: string
+          p_postal_code: string
+          p_rfc: string
+          p_tax_regime: string
+          p_tenant: string
+        }
         Returns: undefined
       }
       set_member_role: {

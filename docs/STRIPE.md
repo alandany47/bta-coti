@@ -107,9 +107,11 @@ Corrida contra Stripe en modo prueba y la base real: `npm run stripe:e2e` (30 co
 
 ## 8. Checklist antes de modo live
 
-- [ ] Cuenta verificada (RFC, CLABE). OXXO y SPEI activados.
+- [ ] Cuenta verificada (RFC, CLABE, perfil público y descriptor). Hoy (2026-10-04) la cuenta es solo sandbox: `details_submitted: false`. SPEI activado (OXXO no sirve para cobro recurrente).
+- [ ] Webhook creado en prueba y en live apuntando a `https://ayxco.app/api/stripe/webhook` (Stripe no sigue redirecciones: el dominio principal debe ser el apex).
 - [ ] Descriptor de cargo con el nombre de la marca (lo que aparece en el estado de cuenta).
 - [ ] Webhook live creado con los eventos de §6. Secret en Vercel prod.
 - [ ] `stripe-sync` corrido en live. `plans` de prod con los IDs live.
 - [ ] Recibos por correo activados, con logo y color de marca en Branding.
-- [ ] Política de reembolsos publicada y ligada en Checkout (`consent_collection.terms_of_service`).
+- [x] Política de reembolsos publicada en `/legal/reembolsos` (borrador, falta revisión legal). Para ligarla en Checkout hay que poner primero la URL de Términos en Dashboard → Settings → Public details; `consent_collection.terms_of_service` falla si no está.
+- [ ] Facturación (CFDI): el cliente captura sus datos en Panel → Facturación (D30); la emisión del CFDI es manual o con un PAC.

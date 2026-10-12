@@ -15,22 +15,24 @@ const newsreader = Newsreader({
   weight: ["500", "600"],
 });
 
-const description = "Cotizador para PyMEs: catálogo, precios y envío por WhatsApp.";
+const title = `${BRAND.name} · Cotizaciones en segundos para servicios, productos y propiedades`;
+const description =
+  "Sistema para hacer cotizaciones en segundos y de manera sencilla: venta de muebles, servicios de plomería, ropa, maquillaje, inmobiliarias y más. Catálogo, PDF y envío por WhatsApp.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${BRAND.domain}`),
-  title: { default: BRAND.name, template: `%s · ${BRAND.name}` },
+  title: { default: title, template: `%s · ${BRAND.name}` },
   description,
   openGraph: {
     type: "website",
     locale: "es_MX",
     siteName: BRAND.name,
-    title: BRAND.name,
+    title,
     description,
   },
   twitter: {
     card: "summary_large_image",
-    title: BRAND.name,
+    title,
     description,
   },
 };

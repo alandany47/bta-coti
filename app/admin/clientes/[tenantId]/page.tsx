@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTenantForAdmin, getTenantMembers } from "@/lib/admin-tenants";
+import { getTenantBillingProfile, getTenantForAdmin, getTenantMembers } from "@/lib/admin-tenants";
 import { listPlansForAdmin } from "@/lib/admin-plans";
 import { listAuditLogForAdmin } from "@/lib/admin-audit";
 import { stripeDashboardUrl } from "@/lib/stripe";
@@ -20,10 +20,11 @@ export default async function AdminClienteDetallePage({
   const tenant = await getTenantForAdmin(tenantId);
   if (!tenant) notFound();
 
-  const [members, plans, history] = await Promise.all([
+  const [members, plans, history, billing] = await Promise.all([
     getTenantMembers(tenantId),
     listPlansForAdmin(),
     listAuditLogForAdmin({ tenantId, page }),
+    getTenantBillingProfile(tenantId),
   ]);
 
   return (
@@ -32,6 +33,7 @@ export default async function AdminClienteDetallePage({
       members={members}
       plans={plans}
       history={history}
+      billing={billing}
       rootDomain={BRAND.domain}
       stripeCustomerUrl={tenant.stripe_customer_id ? stripeDashboardUrl("customers", tenant.stripe_customer_id) : null}
       stripeSubscriptionUrl={tenant.stripe_subscription_id ? stripeDashboardUrl("subscriptions", tenant.stripe_subscription_id) : null}

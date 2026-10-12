@@ -1,0 +1,34 @@
+# Puerta de calidad antes de producción. Vercel ya no construye previews (vercel.json `ignoreCommand`,
+# ahorra Build CPU minutes), así que esto es lo que atrapa errores de tipos, pruebas o `next build`.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Valores de relleno: el build no consulta la base, solo necesita que existan.
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+      SUPABASE_SERVICE_ROLE_KEY: placeholder
+      NEXT_PUBLIC_ROOT_DOMAIN: ayxco.app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npm run build

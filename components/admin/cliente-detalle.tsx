@@ -15,7 +15,7 @@ import { useTenantUrl } from "@/components/admin/use-tenant-url";
 import { CopyLinkButton } from "@/components/quote/copy-link-button";
 import { formatBytes } from "@/lib/utils";
 import type { AdminTenantRow } from "@/lib/types";
-import type { TenantMember } from "@/lib/admin-tenants";
+import type { AdminBillingProfile, TenantMember } from "@/lib/admin-tenants";
 import type { Plan } from "@/lib/plans-shared";
 import type { AuditLogRow } from "@/lib/admin-audit";
 
@@ -39,6 +39,7 @@ export function ClienteDetalle({
   members,
   plans,
   history,
+  billing,
   rootDomain,
   stripeCustomerUrl,
   stripeSubscriptionUrl,
@@ -47,6 +48,7 @@ export function ClienteDetalle({
   members: TenantMember[];
   plans: Plan[];
   history: { rows: AuditLogRow[]; total: number; page: number; pageSize: number };
+  billing: AdminBillingProfile | null;
   rootDomain: string;
   stripeCustomerUrl: string | null;
   stripeSubscriptionUrl: string | null;
@@ -95,6 +97,27 @@ export function ClienteDetalle({
       </div>
 
       <AccionesCard tenant={tenant} plans={plans} onUpdate={handleUpdate} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Datos fiscales</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          {billing ? (
+            <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+              <div className="flex justify-between gap-4"><dt className="text-foreground-muted">RFC</dt><dd className="font-medium text-foreground">{billing.rfc}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-foreground-muted">Código postal</dt><dd className="text-foreground">{billing.postalCode}</dd></div>
+              <div className="flex justify-between gap-4 sm:col-span-2"><dt className="text-foreground-muted">Razón social</dt><dd className="text-right text-foreground">{billing.legalName}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-foreground-muted">Régimen</dt><dd className="text-foreground">{billing.taxRegime}</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-foreground-muted">Uso CFDI</dt><dd className="text-foreground">{billing.cfdiUse}</dd></div>
+              <div className="flex justify-between gap-4 sm:col-span-2"><dt className="text-foreground-muted">Correo de factura</dt><dd className="text-foreground">{billing.invoiceEmail}</dd></div>
+              <p className="text-xs text-muted sm:col-span-2">Capturado el {dateTimeFormat.format(new Date(billing.updatedAt))}.</p>
+            </dl>
+          ) : (
+            <p className="text-sm text-muted">El cliente todavía no capturó sus datos fiscales (Panel → Facturación).</p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

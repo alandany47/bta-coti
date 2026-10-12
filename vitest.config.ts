@@ -10,5 +10,5 @@ export default defineConfig({
   },
   // tsconfig usa jsx "preserve" (Next); las plantillas de correo se renderizan en las pruebas, así que esbuild transforma JSX aquí.
   esbuild: { jsx: "automatic" },
-  test: { environment: "node", include: ["lib/**/*.test.ts", "emails/**/*.test.tsx"] },
+  test: { environment: "node", include: ["lib/**/*.test.ts", "emails/**/*.test.tsx", "components/**/*.test.tsx"] },
 });

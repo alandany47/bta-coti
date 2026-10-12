@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/precios", label: "Precios" },
-  { href: "/brokers", label: "Broker" },
   { href: "/servicios", label: "Servicios" },
-  { href: "/catalogo", label: "Catálogo" },
+  { href: "/catalogo", label: "Productos" },
+  { href: "/brokers", label: "Propiedades" },
 ];
 
 export function SiteHeader() {
