@@ -62,8 +62,8 @@ function fakeSupabase(initial: { stripe_events?: Row[]; subscriptions?: Row[]; p
   return client as never;
 }
 
-function fakeEvent(id: string, type: string, object: unknown): Stripe.Event {
-  return { id, type, data: { object } } as unknown as Stripe.Event;
+function fakeEvent(id: string, type: string, object: unknown, created = 1_900_000_000): Stripe.Event {
+  return { id, type, created, data: { object } } as unknown as Stripe.Event;
 }
 
 beforeEach(() => {
@@ -205,5 +205,59 @@ describe("handleStripeEvent", () => {
 
     await expect(handleStripeEvent(fakeEvent("evt_9", "checkout.session.completed", session), supabase)).rejects.toThrow();
     expect((supabase as never as { tables: { stripe_events: Row[] } }).tables.stripe_events).toHaveLength(0);
+  });
+  describe("orden de eventos entre suscripciones (revisión de Codex)", () => {
+    const tenantsAndRows = () =>
+      fakeSupabase({
+        plans: [{ id: "plan-nuevo", stripe_price_month: "price_nuevo", stripe_price_year: null }],
+        // el tenant ya pasó a sub_nueva; la fila se guardó en 1_900_000_100 s
+        subscriptions: [{ tenant_id: "tenant-1", stripe_subscription_id: "sub_nueva", status: "active", updated_at: new Date(1_900_000_100_000).toISOString() }],
+        tenants: [{ id: "tenant-1", stripe_subscription_id: "sub_nueva", plan_id: "plan-nuevo" }],
+      });
+    const oldSub = (status: string) => ({
+      id: "sub_vieja",
+      customer: "cus_1",
+      status,
+      collection_method: "charge_automatically",
+      cancel_at_period_end: false,
+      metadata: { tenant_id: "tenant-1" },
+      items: { data: [{ price: { id: "price_viejo" }, current_period_end: 1893456000 }] },
+    });
+
+    it("un .updated retrasado de la suscripción vieja NO pisa la nueva", async () => {
+      const supabase = tenantsAndRows();
+      await handleStripeEvent(fakeEvent("evt_s1", "customer.subscription.updated", oldSub("active"), 1_900_000_000), supabase);
+      const tables = (supabase as never as { tables: { subscriptions: Row[]; tenants: Row[] } }).tables;
+      expect(tables.subscriptions[0]).toMatchObject({ stripe_subscription_id: "sub_nueva", status: "active" });
+      expect(tables.tenants[0]).toMatchObject({ stripe_subscription_id: "sub_nueva", plan_id: "plan-nuevo" });
+    });
+
+    it("si no es demostrablemente viejo, revienta para que Stripe reintente y no marca el evento", async () => {
+      const supabase = tenantsAndRows();
+      await expect(
+        handleStripeEvent(fakeEvent("evt_s2", "customer.subscription.created", oldSub("active"), 1_900_000_500), supabase),
+      ).rejects.toThrow();
+      expect((supabase as never as { tables: { stripe_events: Row[] } }).tables.stripe_events).toHaveLength(0);
+    });
+
+    it("una suscripción nueva sí reemplaza a una ya terminada", async () => {
+      const supabase = fakeSupabase({
+        subscriptions: [{ tenant_id: "tenant-1", stripe_subscription_id: "sub_vieja", status: "canceled", updated_at: new Date(1_900_000_000_000).toISOString() }],
+        tenants: [{ id: "tenant-1", stripe_subscription_id: "sub_vieja" }],
+      });
+      const sub = { ...oldSub("active"), id: "sub_nueva" };
+      await handleStripeEvent(fakeEvent("evt_s3", "customer.subscription.created", sub, 1_900_000_500), supabase);
+      const tables = (supabase as never as { tables: { subscriptions: Row[] } }).tables;
+      expect(tables.subscriptions[0]).toMatchObject({ stripe_subscription_id: "sub_nueva", status: "active" });
+    });
+
+    it("un .deleted retrasado de la suscripción vieja NO cancela al tenant que ya tiene otra vigente", async () => {
+      const supabase = tenantsAndRows();
+      await handleStripeEvent(fakeEvent("evt_s4", "customer.subscription.deleted", oldSub("canceled"), 1_900_000_000), supabase);
+      const tables = (supabase as never as { tables: { subscriptions: Row[]; tenants: Row[] } }).tables;
+      expect(tables.tenants[0]).toMatchObject({ stripe_subscription_id: "sub_nueva" });
+      expect(tables.subscriptions[0]).toMatchObject({ status: "active" });
+      expect(setTenantStatus).not.toHaveBeenCalled();
+    });
   });
 });

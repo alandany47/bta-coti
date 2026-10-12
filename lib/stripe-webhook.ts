@@ -112,6 +112,29 @@ async function upsertSubscription(supabase: SupabaseClient, tenantId: string, su
 }
 
 /**
+ * Stripe no garantiza el orden de entrega (revisión de Codex): un `customer.subscription.updated` o
+ * `.deleted` retrasado de una suscripción VIEJA no puede pisar la que el tenant ya tiene vigente.
+ * - `ok`: el tenant no tiene suscripción, ya apunta a esta o la guardada está terminada (reemplazo legítimo).
+ * - `stale`: apunta a otra viva y el evento es anterior a lo último que guardamos de ella: se ignora.
+ * - `retry`: apunta a otra viva y el evento no es demostrablemente viejo (p. ej. la nueva llegó antes de
+ *   procesar el `.deleted` de la anterior): se reintenta, Stripe vuelve a entregarlo.
+ */
+type SubscriptionOrder = "ok" | "stale" | "retry";
+
+const ENDED_SUBSCRIPTION_STATUSES = ["canceled", "incomplete_expired"];
+
+async function subscriptionOrder(supabase: SupabaseClient, tenantId: string, subId: string, eventCreated: number): Promise<SubscriptionOrder> {
+  const { data: tenant } = await supabase.from("tenants").select("stripe_subscription_id").eq("id", tenantId).maybeSingle();
+  const current = (tenant as { stripe_subscription_id: string | null } | null)?.stripe_subscription_id ?? null;
+  if (!current || current === subId) return "ok";
+  const { data: stored } = await supabase.from("subscriptions").select("status, updated_at").eq("tenant_id", tenantId).maybeSingle();
+  const row = stored as { status: string; updated_at: string | null } | null;
+  if (!row || ENDED_SUBSCRIPTION_STATUSES.includes(row.status)) return "ok";
+  if (row.updated_at && Date.parse(row.updated_at) > eventCreated * 1000) return "stale";
+  return "retry";
+}
+
+/**
  * La suscripción que generó una factura ya no viaja en `invoice.subscription` (quitado de la API
  * en versiones recientes de Stripe): ahora vive en `invoice.parent.subscription_details.subscription`.
  */
@@ -172,6 +195,12 @@ export async function handleStripeEvent(event: Stripe.Event, supabase: SupabaseC
       const sub = event.data.object as Stripe.Subscription;
       const tenantId = tenantIdFromMetadata(sub.metadata);
       if (!tenantId) break;
+      const order = await subscriptionOrder(supabase, tenantId, sub.id, event.created);
+      if (order === "retry") throw new Error(`stripe webhook: ${event.id} es de ${sub.id} pero el tenant ${tenantId} tiene otra suscripción viva; se reintenta`);
+      if (order === "stale") {
+        console.warn(`stripe webhook: ${event.id} (${sub.id}) es anterior a la suscripción vigente de ${tenantId}; se ignora`);
+        break;
+      }
       await upsertSubscription(supabase, tenantId, sub);
       break;
     }
@@ -182,6 +211,8 @@ export async function handleStripeEvent(event: Stripe.Event, supabase: SupabaseC
       if (!tenantId) break;
       const { error } = await supabase.from("subscriptions").update({ status: "canceled" }).eq("stripe_subscription_id", sub.id);
       if (error) throw error;
+      // Un `.deleted` retrasado de una suscripción vieja no cancela al tenant que ya tiene otra vigente.
+      if ((await subscriptionOrder(supabase, tenantId, sub.id, event.created)) !== "ok") break;
       // Se limpia stripe_subscription_id: si no, app/api/[tenant]/billing/checkout cree para siempre
       // que ya hay una suscripción activa y nunca deja arrancar una nueva (un tenant cancelado de
       // verdad tiene que poder volver a suscribirse, no solo cambiar de plan por el Portal).

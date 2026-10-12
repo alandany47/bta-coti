@@ -70,8 +70,9 @@ Supabase manda muy pocos correos por hora y desde un remitente genérico. Sin es
    supabase config push
    ```
    (El bloque `[auth.email.smtp]` de `config.toml` está comentado; no hace falta declararlo: la contraseña se puso en el Dashboard.)
-   `config.toml` declara `email_sent = 100` para que el push no devuelva el límite a 2 por hora. **Después del push**, vuelve a
-   Authentication → Rate Limits y confirma que *emails sent* sigue en 100 antes de abrir el registro.
+   `supabase config push` (CLI ≥ 2.117) solo empuja lo que el archivo declara, **no** toca el bloque SMTP del Dashboard y
+   **no gestiona `email_sent`**: el límite de correos por hora se fija a mano en Authentication → Rate Limits
+   (sube de 2 a 100 una vez que hay SMTP propio) y debe confirmarse antes de abrir el registro.
 5. Prueba real: abre `https://ayxco.app/registro`, regístrate con **tu correo real** (uno que no hayas usado), y
    revisa que (a) llega "Confirma tu correo" de AYXCO en menos de un minuto, (b) no cae en spam, (c) el botón te lleva a
    `tu-slug.ayxco.app/panel/bienvenida`, (d) llega después el correo de **bienvenida** (ese sale por la llave `app`).

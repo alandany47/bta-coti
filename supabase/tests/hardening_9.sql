@@ -29,8 +29,10 @@ insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000e1
 select set_config('t.tenant', public.provision_tenant('00000000-0000-0000-0000-0000000000e1', 'Negocio E', 'negocio-e-hardening9', 'broker', 'active', null, 'admin', 'manual')::text, true);
 
 insert into public.clients (tenant_id, full_name, phone) values (current_setting('t.tenant')::uuid, 'Cliente E', '5500000001');
+insert into public.items (kind, id, tenant_id, title, sku, price)
+  values ('product', '00000000-0000-0000-0000-00000000e0a1', current_setting('t.tenant')::uuid, 'Ítem E', 'E-1', 100);
 insert into public.media (id, tenant_id, item_id, kind, status, r2_key, content_type, bytes)
-  values ('00000000-0000-0000-0000-00000000e003', current_setting('t.tenant')::uuid, null, 'image', 'ready', 't/negocio-e/_/foto-full.webp', 'image/webp', 1000);
+  values ('00000000-0000-0000-0000-00000000e003', current_setting('t.tenant')::uuid, '00000000-0000-0000-0000-00000000e0a1', 'image', 'ready', 't/negocio-e/_/foto-full.webp', 'image/webp', 1000);
 
 -- una cotización vigente que referencia esa llave en su snapshot bloquea el borrado
 insert into public.quotes (tenant_id, client_name, client_phone, snapshot, expires_at) values
@@ -48,6 +50,8 @@ select lives_ok(
   'mark_media_detached es una llamada aparte, después de que el caller atrapa media_in_use'
 );
 select is((select detached_at is not null from public.media where id = '00000000-0000-0000-0000-00000000e003'), true, 'ahora sí queda marcado');
+select is((select item_id from public.media where id = '00000000-0000-0000-0000-00000000e003'), null, 'mark_media_detached suelta item_id (0038)');
+select lives_ok($$delete from public.items where id = '00000000-0000-0000-0000-00000000e0a1'$$, 'el ítem ya se puede borrar aunque su foto siga en una cotización vigente');
 select is((select public.retry_detached_media_deletes()), 0, 'sigue bloqueada: el reintento no logra borrar nada todavía');
 select is((select count(*) from public.media where id = '00000000-0000-0000-0000-00000000e003'), 1::bigint, 'la fila sigue existiendo');
 
